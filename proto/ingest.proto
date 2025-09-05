@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package ecg.ingest.v1;
+
+
+// Bit flags for Sample.status to be combined with bitwise or on client
+enum StatusBits {
+  STATUS_BITS_UNSPECIFIED = 0;
+  STATUS_OK               = 1;   // 0b0000_0001
+  STATUS_LEAD_OFF         = 2;   // 0b0000_0010
+  STATUS_SATURATED        = 4;   // 0b0000_0100
+  STATUS_DROPPED          = 8;   // 0b0000_1000
+  STATUS_CRC_ERROR        = 16;  // 0b0001_0000
+  STATUS_RESYNC           = 32;  // 0b0010_0000
+}
+
+// One timestamped ECG sample
+message Sample {
+  // Monotonically increasing per session. Detects loss/duplication
+  uint64 seq   = 1;
+  // Seconds since session start (producer’s clock importantly)
+  double t_s   = 2;
+  // Millivolts (ECG amplitude)
+  float  mv    = 3;
+  // Bit-mask of StatusBits (combine via bitwise OR).
+  uint32 status = 4;
+}
+
+// A small consecutive chunk of samples.
+message SampleBatch {
+  // Stable identifier for this run (e.g., "device123-2025-09-04T19:26Z"
+  // or "csv-rec100-..."). Enables per-session state.
+  string session_id = 1;
+  // Nominal sampling rate (Hz). Server uses this for sanity/monitoring.
+  double fs_hz      = 2;
+  // The samples themselves.
+  repeated Sample samples = 3;
+}
+
+// Server acknowledgment.
+// Returned at end of unary calls or periodically.
+message Ack {
+  // Count of samples accepted from the last message/stream.
+  uint64 received = 1;
+  // Count of samples rejected.
+  uint64 dropped  = 2;
+  // Highest sequence number accepted for this session to allow resuming.
+  uint64 last_seq = 3;
+  // Human-readable note (e.g., "fs drift 2.4%", "non-monotonic at index 37").
+  string warning  = 4;
+}
+
+// Ingestion service: primary API is client-streaming.
+service Ingestor {
+  // Default Behavior should be this!!
+  // Client opens a stream and sends batches back-to-back.
+  rpc Ingest (stream SampleBatch) returns (Ack);
+
+  // Convenience fallback for simple producers/tests.
+  rpc IngestOnce (SampleBatch) returns (Ack);
+}
