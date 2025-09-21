@@ -28,12 +28,17 @@ impl Default for MyApp {
 
 impl App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        const HEADERSIZE: f32 = 28.0;
+        const SUBHEADERSIZE: f32 = 18.0;
+        // const NORMALTEXTSIZE: f32 = 12.0;
+        const HEARTRATESIZE:f32 = 64.0;
+        const BEEPERSIZE: f32 = 128.0;
         let heartRate: u16 = 65;
         // App Header
         egui::TopBottomPanel::top("header").show(ctx, |ui| {
             ui.add_space(6.0);
             ui.horizontal_wrapped(|ui| {
-                ui.heading(egui::RichText::new("Electrocardiogram (EKG)").strong());
+                ui.heading(egui::RichText::new("Electrocardiogram (EKG)").size(HEADERSIZE).strong());
             });
             ui.add_space(6.0);
         });
@@ -50,7 +55,7 @@ impl App for MyApp {
                                     ui.set_min_size(egui::vec2(80.0, 80.0));
                                     ui.vertical(|ui| {
                                         ui.label(
-                                            egui::RichText::new("Session Information").strong(),
+                                            egui::RichText::new("Session Information").size(SUBHEADERSIZE).strong(),
                                         );
                                         ui.separator();
                                         ui.small("Stuff about the session");
@@ -62,7 +67,7 @@ impl App for MyApp {
                                     ui.set_min_size(egui::vec2(80.0, 80.0));
                                     ui.vertical(|ui| {
                                         ui.label(
-                                            egui::RichText::new("Device Information").strong(),
+                                            egui::RichText::new("Device Information").size(SUBHEADERSIZE).strong(),
                                         );
                                         ui.separator();
                                         ui.small("Stuff about the connected device (producer)");
@@ -74,7 +79,7 @@ impl App for MyApp {
                                     ui.set_min_size(egui::vec2(80.0, 80.0));
                                     ui.vertical(|ui| {
                                         ui.label(
-                                            egui::RichText::new("Extra").strong(),
+                                            egui::RichText::new("Extra").size(SUBHEADERSIZE).strong(),
                                         );
                                         ui.separator();
                                         ui.small("Probably gonna want another box of sorts");
@@ -112,7 +117,7 @@ impl App for MyApp {
                             egui::Frame::group(ui.style()).show(ui, |ui| {
                                 ui.set_min_size(egui::vec2(100.0, 140.0));
                                 ui.vertical(|ui| {
-                                    ui.label(egui::RichText::new("Random Info").strong());
+                                    ui.label(egui::RichText::new("Random Info").size(SUBHEADERSIZE).strong());
                                     ui.separator();
                                     ui.label("Surely gonna need to add some stuff later (logs, etc.)");
                                 });
@@ -133,11 +138,11 @@ impl App for MyApp {
                             egui::Frame::group(ui.style()).show(ui, |ui| {
                                 ui.set_min_size(egui::vec2(100.0, 140.0));
                                 ui.vertical(|ui| {
-                                    ui.label(egui::RichText::new("Heartrate").strong());
+                                    ui.label(egui::RichText::new("Heartrate").size(SUBHEADERSIZE).strong());
                                     ui.separator();
                                     ui.horizontal(|ui| {
-                                        ui.label(heartRate.to_string());
-                                        ui.label(egui::RichText::new("•").color(light_color));
+                                        ui.label(egui::RichText::new(heartRate.to_string()).size(HEARTRATESIZE));
+                                        ui.label(egui::RichText::new("•").color(light_color).size(HEARTRATESIZE));
                                     });
                                 });
                             });
